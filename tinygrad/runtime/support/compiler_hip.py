@@ -64,5 +64,7 @@ class AMDCompiler(Compiler):
     try: return compile_hip(src, self.arch)
     except RuntimeError as e: raise CompileError(e) from e
   def disassemble(self, lib:bytes):
+    import os.path
+    if not os.path.exists("/opt/rocm/llvm/bin/llvm-objdump"): return
     asm = subprocess.check_output(["/opt/rocm/llvm/bin/llvm-objdump", '-d', '-'], input=lib)
     print('\n'.join([x for x in asm.decode('utf-8').split("\n") if 's_code_end' not in x]))

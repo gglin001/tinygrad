@@ -57,3 +57,5 @@ comgr_*
 site/
 master_schedule.py
 profile_stats
+
+*.dylib
