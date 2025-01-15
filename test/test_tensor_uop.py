@@ -3,9 +3,9 @@ import numpy as np
 import unittest
 from tinygrad import Tensor, Device, dtypes
 from tinygrad.engine.realize import run_schedule
-from tinygrad.ops import Ops, UOp
+from tinygrad.ops import Ops, UOp, UPat, view_supported_devices
 
-class TestLazyBuffer(unittest.TestCase):
+class TestTensorUOp(unittest.TestCase):
   def test_fromcpu_shape_tracker(self):
     def helper(a: np.ndarray):
       print(a.shape, a.strides, a.flags.c_contiguous)
@@ -68,7 +68,7 @@ class TestLazyBuffer(unittest.TestCase):
     assert lb.const_like(1).const_arg == 1.0
     assert type(lb.const_like(1).const_arg) is float
 
-  def test_forced_realized_alu(self):
+  def test_contiguous_alu(self):
     a = Tensor.randn(2, 2).realize()
     b = Tensor.randn(2, 2).realize()
     add = (a+b).contiguous()
@@ -84,13 +84,23 @@ class TestLazyBuffer(unittest.TestCase):
     sched = empty.schedule()
     self.assertEqual(len(sched), 0)
 
+  @unittest.skipIf(Device.DEFAULT in view_supported_devices, "BUFFER_VIEW cannot exist on a CONST")
+  def test_contiguous_folded_alu(self):
+    a = Tensor.empty(8, 8)
+    # NOTE: the buffer for mul_0 late folds to just a CONST
+    mul_0 = a*0
+    out = mul_0.shrink(((4, 8), (0, 8))).contiguous()
+    out.realize()
+    self.assertEqual(out.tolist(), Tensor.zeros(4, 8).tolist())
+
+reduce_kernel = UPat(Ops.SINK, src=(UPat(Ops.STORE, src=(UPat(), UPat(), UPat(Ops.REDUCE_AXIS)))))
 class TestReduceOp(unittest.TestCase):
   def test_no_split_reduce_kernel(self):
     a = Tensor.rand(4, 4).realize()
     a = a.sum()
     sched = a.schedule()
     assert len(sched) == 1
-    self.assertIs(sched[0].ast.src[0].src[2].op, Ops.REDUCE_AXIS)
+    assert reduce_kernel.match(sched[0].ast, {})
 
   def test_split_reduce_kernel_dim0(self):
     a = Tensor.rand(256, 255).realize()
@@ -98,7 +108,7 @@ class TestReduceOp(unittest.TestCase):
     sched = a.schedule()
     assert len(sched) == 2
     for s in sched:
-      self.assertIs(s.ast.src[0].src[2].op, Ops.REDUCE_AXIS)
+      assert reduce_kernel.match(s.ast, {})
 
   def test_split_reduce_kernel_dim1(self):
     a = Tensor.rand(255, 256).realize()
@@ -106,7 +116,7 @@ class TestReduceOp(unittest.TestCase):
     sched = a.schedule()
     assert len(sched) == 2
     for s in sched:
-      self.assertIs(s.ast.src[0].src[2].op, Ops.REDUCE_AXIS)
+      assert reduce_kernel.match(s.ast, {})
 
 if __name__ == "__main__":
   unittest.main()
