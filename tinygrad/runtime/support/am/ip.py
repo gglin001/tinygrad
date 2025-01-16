@@ -7,7 +7,7 @@ if TYPE_CHECKING:
   from tinygrad.runtime.support.am.amdev import AMDev
 
 class AM_IP:
-  def __init__(self, adev: AMDev): self.adev = adev
+  def __init__(self, adev: 'AMDev'): self.adev = adev
   def init(self): raise NotImplementedError("IP block init must be implemeted")
   def fini(self): pass
 
