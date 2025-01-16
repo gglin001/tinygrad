@@ -1,10 +1,13 @@
 import ctypes, time
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 from tinygrad.runtime.autogen.am import am, smu_v13_0_0
 from tinygrad.helpers import to_mv, data64, lo32, hi32, DEBUG
 
+if TYPE_CHECKING:
+  from tinygrad.runtime.support.am.amdev import AMDev
+
 class AM_IP:
-  def __init__(self, adev): self.adev = adev
+  def __init__(self, adev: AMDev): self.adev = adev
   def init(self): raise NotImplementedError("IP block init must be implemeted")
   def fini(self): pass
 
