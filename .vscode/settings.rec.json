@@ -1,0 +1,48 @@
+{
+  "editor.wordWrapColumn": 120,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.minimap.enabled": false,
+  // "editor.wordWrap": "on",
+  "search.exclude": {
+    "_demos": true,
+    "examples/tinychat": true,
+  },
+  "terminal.integrated.env.osx": {
+    "XDG_CACHE_HOME": "${workspaceFolder}/_demos",
+    "DEBUG": "10",
+    // "DEBUG": "6",
+    // "DEBUG": "5",
+    // "DEBUG": "4",
+    //
+    "LOGKERNS": "${workspaceFolder}/_demos/tmp/logkerns.log",
+    "LOGKERNS_LEVEL": "2",
+    //
+    "FORWARD_ONLY": "1",
+    "IOCTL_PROCESSOR": "aarch64",
+    //
+    // "LLVM": "1",
+    //
+    // "CLANG": "1",
+    //
+    // "GPU": "1",
+    //
+    // "MOCKGPU": "1",
+    // "NV": "1",
+    // // "PTX": "1",
+    //
+    // "MOCKGPU": "1",
+    // "CUDA": "1",
+    //
+    // "MOCKGPU": "1",
+    // "AMD": "1",
+    // "IOCTL": "1",
+    //
+    // "MOCKGPU": "1",
+    // "QCOM": "1",
+    //
+    // "PYTHON": "1",
+    // "EMULATE_CUDA": "1",
+    // "TRACE": "1",
+    //
+  },
+}
